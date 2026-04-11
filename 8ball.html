@@ -1,0 +1,1325 @@
+<html lang="ko" vid="0"><head vid="1">
+<meta charset="UTF-8" vid="2">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" vid="3">
+<title vid="4">Solution Sphere</title>
+<script src="https://cdn.tailwindcss.com/3.4.17" vid="5"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;800;900&amp;display=swap" rel="stylesheet" vid="6">
+<style vid="7">
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+  
+  html {
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100%;
+    background-color: var(--bg-color);
+    transition: background-color 0.3s ease;
+  }
+
+  html[data-theme="dark"] {
+    background-color: #000000;
+  }
+
+  body::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
+  
+  body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  body::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
+  
+  body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  :root {
+    --bg-color: #FFFFFF;
+    --text-primary: #000000;
+    --text-secondary: #000000;
+    --ball-base: #000000;
+    --window-bg: #FFFFFF;
+  }
+
+  [data-theme="dark"] {
+    --bg-color: #000000;
+    --text-primary: #FFFFFF;
+    --text-secondary: #FFFFFF;
+    --ball-base: #000000;
+    --window-bg: #FFFFFF;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: auto;
+    width: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  @media (max-width: 480px) {
+    body {
+      align-items: flex-start;
+      padding: 0;
+      overflow: hidden;
+      touch-action: none;
+      height: 100vh;
+      height: 100dvh;
+      position: fixed;
+    }
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-color);
+    border: 3px solid var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    z-index: 1000;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    .theme-toggle {
+      position: relative;
+      top: auto;
+      right: auto;
+      width: 40px;
+      height: 40px;
+      border-width: 2px;
+      margin-left: 12px;
+    }
+    .theme-toggle .theme-icon {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .theme-toggle#themeToggle {
+      display: none !important;
+    }
+  }
+
+  .theme-toggle:hover {
+    transform: scale(1.05);
+  }
+
+  .theme-toggle:active {
+    transform: scale(0.95);
+    background: var(--text-primary);
+    color: var(--bg-color);
+  }
+
+  .theme-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  [data-theme="dark"] .theme-icon.sun { display: block; }
+  [data-theme="dark"] .theme-icon.moon { display: none; }
+  :not([data-theme="dark"]) .theme-icon.sun { display: none; }
+  :not([data-theme="dark"]) .theme-icon.moon { display: block; }
+
+  .app-container {
+    width: 100%;
+    max-width: 600px;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 2rem;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    background-color: var(--bg-color);
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+  
+  @media (max-width: 480px) {
+    .app-container {
+      padding: 1rem;
+      padding-top: 16px;
+      padding-bottom: 16px;
+      justify-content: flex-start;
+      height: auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      gap: 8px;
+    }
+  }
+
+  .title {
+    color: var(--text-primary);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    text-transform: uppercase;
+    font-family: 'Patrick Hand', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+    padding: 0;
+    word-break: keep-all;
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    .title {
+      font-size: 1.3rem;
+      line-height: 1.3;
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 0 1rem;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-bottom: none;
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    .subtitle {
+      font-size: 0.75rem;
+      text-decoration: none;
+      border: none;
+      padding: 0;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .subtitle {
+      font-size: 0.8rem;
+      text-decoration: none;
+      border: none;
+    }
+  }
+
+  .sphere-container {
+    position: relative;
+    width: min(280px, 75vw);
+    height: min(280px, 75vw);
+    max-width: 280px;
+    max-height: 280px;
+    margin: 2rem 0;
+    cursor: grab;
+    perspective: none;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  @media (max-width: 480px) {
+    .sphere-container {
+      width: min(220px, 60vw);
+      height: min(220px, 60vw);
+      max-width: 220px;
+      max-height: 220px;
+      margin: 0.5rem 0;
+      align-self: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .sphere-container {
+      width: min(220px, 65vw);
+      height: min(220px, 65vw);
+      max-width: 220px;
+      max-height: 220px;
+      margin: 1.5rem auto;
+    }
+  }
+
+  .sphere-container:active {
+    cursor: grabbing;
+  }
+
+  .message-display {
+    min-height: 60px;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    text-align: center;
+    padding: 0 2rem;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: -0.02em;
+  }
+
+  .sphere-3d-wrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    transition: transform 0.1s ease-out;
+  }
+
+  .sphere {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--ball-base);
+    box-shadow: none !important;
+    position: absolute;
+    display: block;
+    transform-style: flat;
+  }
+
+  .sphere-3d-wrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    transition: transform 0.1s ease-out;
+  }
+
+  [data-theme="dark"] .sphere {
+    box-shadow: 0 0 0 4px var(--text-primary) !important;
+  }
+
+  .sphere-gloss, .sphere-shine { display: none; }
+
+  .window-outer {
+    width: 36%;
+    height: 36%;
+    min-width: 90px;
+    min-height: 78px;
+    max-width: 140px;
+    max-height: 120px;
+    border-radius: 50%;
+    background: var(--window-bg);
+    position: absolute;
+    top: 20%;
+    right: 18%;
+    transform: rotate(15deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    z-index: 5;
+  }
+
+  @media (max-width: 480px) {
+    .window-outer {
+      width: 38%;
+      height: 38%;
+      min-width: 80px;
+      min-height: 70px;
+    }
+  }
+
+  .window-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: transparent;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .fluid { display: none; }
+
+  .answer-rating {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 15;
+  }
+
+  .is-revealed .answer-rating {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .is-thinking .answer-rating {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  .clover-stars {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    transform: rotate(-15deg);
+  }
+
+  .clover {
+    opacity: 0.15;
+    color: #000000;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+  
+  .clover::before {
+    content: '♣';
+    font-size: 0.9rem;
+  }
+
+  .clover.filled {
+    opacity: 1;
+    color: #000000;
+    animation: cloverPop 0.3s ease forwards;
+  }
+
+  @keyframes cloverPop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .clover.filled:nth-child(1) { animation-delay: 0.05s; }
+  .clover.filled:nth-child(2) { animation-delay: 0.1s; }
+  .clover.filled:nth-child(3) { animation-delay: 0.15s; }
+  .clover.filled:nth-child(4) { animation-delay: 0.2s; }
+  .clover.filled:nth-child(5) { animation-delay: 0.25s; }
+
+  .answer-text {
+    font-size: 0.85rem;
+    color: #000000;
+    text-align: center;
+    line-height: 1.3;
+    padding: 0 10px;
+    font-weight: 900;
+    max-width: 120px;
+    word-wrap: break-word;
+    transform: rotate(-15deg);
+  }
+
+  .slot-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 50%;
+    opacity: 0;
+    z-index: 5;
+    background: transparent;
+  }
+
+  .is-thinking .slot-container { opacity: 1; }
+
+  .slot-strip {
+    position: absolute;
+    width: 100%;
+    height: 300%;
+    top: -100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    animation: slotScroll 0.5s linear infinite;
+  }
+
+  @keyframes slotScroll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-33.33%); }
+  }
+
+  .slot-item {
+    font-size: 1.1rem;
+    color: #000000;
+    font-weight: 900;
+    padding: 4px;
+  }
+
+  .slot-blur-top, .slot-blur-bottom { display: none; }
+
+  .idle-mark {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 5rem;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #000000;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
+    transform: rotate(8deg);
+  }
+
+  @media (max-width: 480px) {
+    .idle-mark {
+      font-size: 4rem;
+      font-weight: 600;
+    }
+  }
+
+  .is-thinking .idle-mark {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  .is-revealed .idle-mark {
+    opacity: 0;
+    display: none;
+  }
+
+  .pull-mechanism {
+    position: relative;
+    width: 64px;
+    height: 120px;
+    background: var(--bg-color);
+    border: 3px solid var(--text-primary);
+    border-radius: 32px;
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    .pull-mechanism {
+      height: 90px;
+      width: 52px;
+      padding: 6px;
+    }
+  }
+
+  .pull-track {
+    width: 4px;
+    height: calc(100% - 16px);
+    background: var(--text-primary);
+    border-radius: 2px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    top: 8px;
+  }
+
+  .pull-handle {
+    width: 42px;
+    height: 42px;
+    background: var(--bg-color);
+    border: 3px solid var(--text-primary);
+    border-radius: 50%;
+    position: absolute;
+    top: 8px;
+    z-index: 2;
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.15s ease;
+  }
+
+  .pull-handle:active, .pull-handle.is-dragging {
+    cursor: grabbing;
+    background: var(--text-primary);
+  }
+
+  .handle-grip {
+    width: 24px;
+    height: 24px;
+    position: relative;
+  }
+
+  .handle-grip::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 3px;
+    background: var(--text-primary);
+    box-shadow: 
+      0 7px 0 var(--text-primary),
+      0 -7px 0 var(--text-primary);
+    transition: all 0.15s ease;
+  }
+
+  .pull-handle:active .handle-grip::before, 
+  .pull-handle.is-dragging .handle-grip::before {
+    background: var(--bg-color);
+    box-shadow: 
+      0 7px 0 var(--bg-color),
+      0 -7px 0 var(--bg-color);
+  }
+
+  .instructions {
+    margin-top: 1.5rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 800;
+    width: 100%;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .instructions {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  .arrow-down {
+    width: 10px;
+    height: 10px;
+    border-right: 3px solid var(--text-primary);
+    border-bottom: 3px solid var(--text-primary);
+    transform: rotate(45deg);
+    animation: bounce 2s infinite;
+  }
+
+  .reset-hint {
+    position: relative;
+    bottom: auto;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    text-decoration: none;
+    border: none;
+    text-align: center;
+    width: 100%;
+  }
+  
+  @media (max-width: 480px) {
+    .reset-hint {
+      margin-top: 0.25rem;
+      font-size: 0.65rem;
+    }
+  }
+
+  .is-revealed + .instructions + .reset-hint,
+  .sphere-container:hover + .instructions + .reset-hint {
+    opacity: 1;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-5px, 0); }
+    40% { transform: translate(5px, 0); }
+    60% { transform: translate(-5px, 0); }
+    80% { transform: translate(5px, 0); }
+  }
+
+  .shaking {
+    animation: shake 0.2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0) rotate(45deg); }
+    40% { transform: translateY(-5px) rotate(45deg); }
+    60% { transform: translateY(-3px) rotate(45deg); }
+  }
+
+  .snap-back {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  }
+
+  /* Floating animation removed */
+</style>
+</head>
+<body vid="8">
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" vid="9">
+    <style vid="10">
+      @media (max-width: 480px) {
+        #themeToggle { display: none !important; }
+      }
+    </style>
+    <svg class="theme-icon moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="11">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" vid="12"></path>
+    </svg>
+    <svg class="theme-icon sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="13">
+      <circle cx="12" cy="12" r="5" vid="14"></circle>
+      <line x1="12" y1="1" x2="12" y2="3" vid="15"></line>
+      <line x1="12" y1="21" x2="12" y2="23" vid="16"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" vid="17"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" vid="18"></line>
+      <line x1="1" y1="12" x2="3" y2="12" vid="19"></line>
+      <line x1="21" y1="12" x2="23" y2="12" vid="20"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" vid="21"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" vid="22"></line>
+    </svg>
+</button>
+
+<div class="app-container" id="app" vid="23">
+  
+  <div class="text-center mb-6" vid="24">
+    <h1 class="title" vid="25">Solution 8ball</h1>
+    <p class="subtitle" vid="26">마음을 비우고 레버를 당기세요</p>
+  </div>
+
+  <div class="sphere-container" id="sphereContainer" vid="27">
+    <div class="sphere-3d-wrapper" id="sphereWrapper" vid="28">
+      <div class="sphere" id="sphere" vid="29">
+        <div class="sphere-gloss" vid="30"></div>
+        <div class="sphere-shine" vid="31"></div>
+        
+        <div class="window-outer" vid="32">
+          <div class="window-inner" id="window" vid="33">
+            
+            <div class="fluid" vid="34"></div>
+            
+            
+            <div class="slot-container" vid="35">
+              <div class="slot-strip" id="slotStrip" vid="36">
+                <div class="slot-item" vid="37">행운</div>
+                <div class="slot-item" vid="38">대박</div>
+                <div class="slot-item" vid="39">성공</div>
+                <div class="slot-item" vid="40">행운</div>
+                <div class="slot-item" vid="41">대박</div>
+                <div class="slot-item" vid="42">성공</div>
+                <div class="slot-item" vid="43">행운</div>
+                <div class="slot-item" vid="44">대박</div>
+                <div class="slot-item" vid="45">성공</div>
+              </div>
+              <div class="slot-blur-top" vid="46"></div>
+              <div class="slot-blur-bottom" vid="47"></div>
+            </div>
+            
+            
+            <div class="answer-rating" id="answerRating" vid="48">
+              <div class="clover-stars" id="cloverStars" vid="49">
+                <span class="clover" vid="50"></span>
+                <span class="clover" vid="51"></span>
+                <span class="clover" vid="52"></span>
+                <span class="clover" vid="53"></span>
+                <span class="clover" vid="54"></span>
+              </div>
+              <div class="answer-text" id="answerText" vid="55"></div>
+            </div>
+            
+            <div class="idle-mark" id="idleMark" vid="56">8</div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="pull-mechanism-wrapper" vid="57">
+    <style vid="58">
+      .pull-mechanism-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        width: 100%;
+      }
+      @media (min-width: 481px) {
+        .theme-toggle-mobile { display: none; }
+      }
+      @media (max-width: 480px) {
+        .pull-mechanism-wrapper {
+          gap: 12px;
+          justify-content: center;
+          margin-top: 0.5rem;
+        }
+      }
+    </style>
+    <div class="pull-mechanism" id="pullTrack" vid="59">
+      <div class="pull-track" vid="60"></div>
+      <div class="pull-handle snap-back" id="pullHandle" vid="61">
+        <div class="handle-grip" vid="62"></div>
+      </div>
+    </div>
+    <button class="theme-toggle theme-toggle-mobile" id="themeToggleMobile" aria-label="Toggle dark mode" vid="63">
+      <svg class="theme-icon moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="64">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" vid="65"></path>
+      </svg>
+      <svg class="theme-icon sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="66">
+        <circle cx="12" cy="12" r="5" vid="67"></circle>
+        <line x1="12" y1="1" x2="12" y2="3" vid="68"></line>
+        <line x1="12" y1="21" x2="12" y2="23" vid="69"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" vid="70"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" vid="71"></line>
+        <line x1="1" y1="12" x2="3" y2="12" vid="72"></line>
+        <line x1="21" y1="12" x2="23" y2="12" vid="73"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" vid="74"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" vid="75"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="instructions" vid="76">
+    <span vid="77">레버를 끝까지 당기세요</span>
+    <div class="arrow-down" vid="78"></div>
+  </div>
+
+  <div class="reset-hint" vid="79">공을 터치하면 8번으로 돌아갑니다</div>
+
+</div>
+
+<script vid="80">
+  
+  const messages = [
+    { text: "지금 당장 실행해라", rating: 5 },
+    { text: "생각만 해둬라", rating: 3 },
+    { text: "머리속에 정한 그대로 해라", rating: 4 },
+    { text: "조금 더 기다려라", rating: 3 },
+    { text: "다시 한번 질문해라", rating: 2 },
+    { text: "확실히 그렇다", rating: 5 },
+    { text: "절대 아니다", rating: 1 },
+    { text: "다른 사람의 의견을 들어라", rating: 3 },
+    { text: "자신을 믿어라", rating: 5 },
+    { text: "지금이 적기다", rating: 5 },
+    { text: "서두르지 마라", rating: 3 },
+    { text: "과감하게 포기해라", rating: 2 },
+    { text: "행운이 함께한다", rating: 5 },
+    { text: "다음 주에 다시 물어라", rating: 2 },
+    { text: "작은 것부터 시작해라", rating: 4 },
+    { text: "큰 그림을 그려라", rating: 4 },
+    { text: "지금은 쉬어가라", rating: 3 },
+    { text: "전혀 상관없다", rating: 3 },
+    { text: "100% 해라", rating: 5 },
+    { text: "네 직관을 믿어라", rating: 4 },
+    { text: "끝까지 밀어붙여라", rating: 4 },
+    { text: "새로운 길을 찾아라", rating: 4 },
+    { text: "시간이 해결해줄 것이다", rating: 4 },
+    { text: "친구에게 물어봐라", rating: 3 },
+    { text: "혼자서도 충분하다", rating: 4 },
+    { text: "두려워하지 마라", rating: 4 },
+    { text: "실패는 성공의 어머니", rating: 4 },
+    { text: "준비가 됐다", rating: 5 },
+    { text: "아직은 이르다", rating: 2 },
+    { text: "구체적인 계획을 세워라", rating: 4 },
+    { text: "직覺을 따라가라", rating: 4 },
+    { text: "모험을 즐겨라", rating: 5 },
+    { text: "천천히 가라", rating: 3 },
+    { text: "빨리 결정해라", rating: 3 },
+    { text: "돌아가라", rating: 2 },
+    { text: "계속 전진해라", rating: 5 },
+    { text: "변화를 받아들여라", rating: 4 },
+    { text: "고집을 버려라", rating: 3 },
+    { text: "모두가 너를 응원한다", rating: 5 },
+    { text: "의심은 버려라", rating: 4 },
+    { text: "강성모한테 물어봐라", rating: 3 },
+    { text: "살려줘", rating: 1 },
+    { text: "사랑해", rating: 5 },
+    { text: "돈 벌어야해", rating: 4 },
+    { text: "이 공을 팔아라", rating: 2 },
+    { text: "침묵도 답이다", rating: 3 },
+    { text: "밥부터 먹어라", rating: 4 },
+    { text: "잠부터 자라", rating: 4 },
+    { text: "운동 그만해라", rating: 2 },
+    { text: "집에 가라", rating: 3 },
+    { text: "나한테 왜 물어봤지", rating: 2 },
+    { text: "그냥 안 해", rating: 1 },
+    { text: "아니면 말고", rating: 2 },
+    { text: "그래서 어쩌라고", rating: 2 },
+    { text: "너의 선택은", rating: 3 },
+    { text: "해도 그만 안해도 그만", rating: 3 },
+    { text: "후회할거다", rating: 1 },
+    { text: "후회 안 할거다", rating: 5 },
+    { text: "집중해라", rating: 4 },
+    { text: "멍 때려라", rating: 3 },
+    { text: "운세 보러 가라", rating: 3 },
+    { text: "타로 봐라", rating: 3 },
+    { text: "네 팔자다", rating: 3 },
+    { text: "세상에 공짜 없다", rating: 3 },
+    { text: "돈이 답이다", rating: 4 },
+    { text: "돈이 문제다", rating: 2 },
+    { text: "재수없어", rating: 1 },
+    { text: "재수 좋다", rating: 5 },
+    { text: "대박 각이다", rating: 5 },
+    { text: "망할 각이다", rating: 1 },
+    { text: "인생 한 방이다", rating: 4 },
+    { text: "안돼", rating: 1 },
+    { text: "됐다", rating: 4 },
+    { text: "그래도 된다", rating: 4 },
+    { text: "안돼서 된다", rating: 3 },
+    { text: "됐는데 안된다", rating: 2 },
+    { text: "코인은 역시 아니었다", rating: 1 },
+    { text: "코인 해라", rating: 3 },
+    { text: "비트코인 당장", rating: 4 },
+    { text: "이더리움 갓", rating: 5 },
+    { text: "도지코인 떡상", rating: 5 },
+    { text: "밈코인은 사기다", rating: 2 },
+    { text: "NFT는 사기다", rating: 2 },
+    { text: "메타버스는 사기다", rating: 2 },
+    { text: "강의 들어라", rating: 3 },
+    { text: "책 읽어라", rating: 4 },
+    { text: "유튜브 찾아봐", rating: 3 },
+    { text: "친구한테 물어봐", rating: 3 },
+    { text: "전문가에게 물어봐", rating: 4 },
+    { text: "학원 다녀라", rating: 3 },
+    { text: "스터디 모임 찾아라", rating: 4 },
+    { text: "혼자 연습해라", rating: 4 },
+    { text: "기록을 남겨라", rating: 4 },
+    { text: "일기 써라", rating: 3 },
+    { text: "계획을 세워라", rating: 4 },
+    { text: "시간 관리해라", rating: 4 },
+    { text: "휴식해라", rating: 4 },
+    { text: "취미를 찾아라", rating: 4 },
+    { text: "일부터 시작해라", rating: 3 },
+    { text: "다시 태어나라", rating: 3 },
+    { text: "금전운이 좋다", rating: 5 },
+    { text: "애인이 생긴다", rating: 5 },
+    { text: "헤어져라", rating: 1 },
+    { text: "결혼해라", rating: 5 },
+    { text: "아이 낳아라", rating: 4 },
+    { text: "이사 가라", rating: 3 },
+    { text: "떠나라", rating: 2 },
+    { text: "돌아와라", rating: 4 },
+    { text: "기다려라", rating: 3 },
+    { text: "참아라", rating: 3 },
+    { text: "포기해라", rating: 1 },
+    { text: "잊어라", rating: 2 },
+    { text: "기억해라", rating: 4 },
+    { text: "사랑해라", rating: 5 },
+    { text: "미워해라", rating: 1 },
+    { text: "용서해라", rating: 5 },
+    { text: "복수해라", rating: 1 },
+    { text: "힘내라", rating: 5 },
+    { text: "쉬어라", rating: 4 },
+    { text: "울어라", rating: 3 },
+    { text: "웃어라", rating: 5 },
+    { text: "춤춰라", rating: 5 },
+    { text: "노래해라", rating: 5 },
+    { text: "그림 그려라", rating: 4 },
+    { text: "글 써라", rating: 4 },
+    { text: "운동해라", rating: 4 },
+    { text: "공부해라", rating: 4 },
+    { text: "시험 봐라", rating: 3 },
+    { text: "합격이다", rating: 5 },
+    { text: "불합격이다", rating: 1 },
+    { text: "합격각이다", rating: 5 },
+    { text: "탈락각이다", rating: 1 },
+    { text: "대출 받아라", rating: 2 },
+    { text: "투자해라", rating: 3 },
+    { text: "판매해라", rating: 4 },
+    { text: "구매해라", rating: 3 },
+    { text: "렌트해라", rating: 3 },
+    { text: "빌려라", rating: 3 },
+    { text: "갚아라", rating: 4 },
+    { text: "빚지마라", rating: 4 },
+    { text: "카드 긁어라", rating: 2 },
+    { text: "카드 끊어라", rating: 4 },
+    { text: "보험 들어라", rating: 4 },
+    { text: "해약해라", rating: 2 },
+    { text: "병원 가라", rating: 3 },
+    { text: "약 먹어라", rating: 3 },
+    { text: "수술해라", rating: 2 },
+    { text: "그냥 둬라", rating: 3 }
+  ];
+
+  const handle = document.getElementById('pullHandle');
+  const track = document.getElementById('pullTrack');
+  const sphere = document.getElementById('sphere');
+  const sphereContainer = document.getElementById('sphereContainer');
+  const windowInner = document.getElementById('window');
+  const messageDisplay = document.createElement('div');
+  messageDisplay.className = 'message-display';
+  messageDisplay.id = 'messageDisplay';
+  document.getElementById('app').insertBefore(messageDisplay, document.getElementById('sphereContainer').nextSibling);
+  const idleMark = document.getElementById('idleMark');
+  const themeToggle = document.getElementById('themeToggle');
+  
+  let isDragging = false;
+  let startY = 0;
+  let currentY = 0;
+  let isProcessing = false;
+  let mouseX = 0;
+  let mouseY = 0;
+  let targetRotateX = 0;
+  let targetRotateY = 0;
+  let currentRotateX = 0;
+  let currentRotateY = 0;
+  let isRevealed = false;
+
+  
+  let isMouseDown = false;
+  let lastMouseX = 0;
+  let lastMouseY = 0;
+  let rotationX = 0;
+  let rotationY = 0;
+  
+  sphereContainer.addEventListener('mousedown', (e) => {
+    if (isProcessing) return;
+    isMouseDown = true;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    sphereContainer.style.cursor = 'grabbing';
+  });
+  
+  document.addEventListener('mousemove', (e) => {
+    if (isProcessing || !isMouseDown) return;
+    
+    
+    const deltaX = e.clientX - lastMouseX;
+    const deltaY = e.clientY - lastMouseY;
+    
+    rotationY += deltaX * 0.5;
+    rotationX -= deltaY * 0.5;
+    
+    
+    rotationX = Math.max(-90, Math.min(90, rotationX));
+    
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    
+    sphere.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+  });
+  
+  document.addEventListener('mouseup', () => {
+    isMouseDown = false;
+    sphereContainer.style.cursor = 'grab';
+  });
+
+  
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (prefersDark) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+
+  themeToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  });
+  
+  // Mobile theme toggle
+  const themeToggleMobile = document.getElementById('themeToggleMobile');
+  if (themeToggleMobile) {
+    themeToggleMobile.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    });
+  }
+
+  
+  let lastTapTime = 0;
+  sphereContainer.addEventListener('click', (e) => {
+    const currentTime = new Date().getTime();
+    const tapInterval = currentTime - lastTapTime;
+    
+    if (tapInterval < 300 && tapInterval > 0) {
+      
+      e.preventDefault();
+      resetRotation();
+    } else if (!isProcessing && isRevealed) {
+      
+      resetToEightBall();
+    }
+    
+    lastTapTime = currentTime;
+  });
+
+  function resetRotation() {
+    
+    sphere.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    rotationX = 0;
+    rotationY = 0;
+    sphere.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    
+    
+    setTimeout(() => {
+      sphere.style.transition = '';
+    }, 600);
+  }
+
+  function resetToEightBall() {
+    windowInner.classList.remove('is-revealed');
+    windowInner.classList.add('is-thinking');
+    const msgDisplay = document.getElementById('messageDisplay');
+    const answerText = document.getElementById('answerText');
+    const clovers = document.querySelectorAll('.clover');
+    
+    if (msgDisplay) msgDisplay.innerText = '';
+    if (answerText) answerText.innerText = '';
+    clovers.forEach(c => c.classList.remove('filled'));
+    
+    setTimeout(() => {
+      windowInner.classList.remove('is-thinking');
+      isRevealed = false;
+    }, 300);
+  }
+
+  const trackHeight = 160;
+  const padding = 8;
+  const handleHeight = 42;
+  const maxTravel = trackHeight - handleHeight - (padding * 2);
+  const threshold = maxTravel * 0.8; 
+
+  handle.addEventListener('pointerdown', (e) => {
+    if (isProcessing) return;
+    isDragging = true;
+    startY = e.clientY;
+    handle.classList.remove('snap-back');
+    handle.classList.add('is-dragging');
+    handle.setPointerCapture(e.pointerId);
+  });
+
+  document.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    
+    let deltaY = e.clientY - startY;
+    
+    if (deltaY < 0) deltaY = 0;
+    if (deltaY > maxTravel) deltaY = maxTravel;
+    
+    currentY = deltaY;
+    handle.style.transform = `translateY(${currentY}px)`;
+    
+    const tension = currentY / maxTravel;
+    sphere.style.setProperty('--lightX', `${25 + tension * 5}%`);
+    sphere.style.setProperty('--lightY', `${20 + tension * 10}%`);
+  });
+
+  document.addEventListener('pointerup', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    handle.classList.remove('is-dragging');
+    handle.classList.add('snap-back');
+    
+    if (currentY >= threshold) {
+      handle.style.transform = `translateY(0px)`;
+      triggerSpin();
+    } else {
+      handle.style.transform = `translateY(0px)`;
+      sphere.style.setProperty('--lightX', '25%');
+      sphere.style.setProperty('--lightY', '20%');
+    }
+    currentY = 0;
+  });
+
+  function triggerSpin() {
+    isProcessing = true;
+    isRevealed = true;
+    
+    
+    targetRotateX = 0;
+    targetRotateY = 0;
+    currentRotateX = 0;
+    currentRotateY = 0;
+    
+    windowInner.classList.remove('is-revealed');
+    windowInner.classList.add('is-thinking');
+    
+    
+    sphere.classList.add('shaking');
+    sphere.classList.remove('sphere-float');
+    
+    
+    sphereContainer.style.transform = 'scale(0.98)';
+    setTimeout(() => {
+      sphereContainer.style.transform = 'scale(1)';
+    }, 100);
+    
+    setTimeout(() => {
+      sphere.classList.remove('shaking');
+      sphere.classList.add('sphere-float');
+      
+      
+      const randomMsgObj = messages[Math.floor(Math.random() * messages.length)];
+      const answerText = document.getElementById('answerText');
+      const cloverStars = document.getElementById('cloverStars');
+      
+      
+      if (answerText) {
+        answerText.innerText = randomMsgObj.text;
+      }
+      
+      
+      if (cloverStars) {
+        const clovers = cloverStars.querySelectorAll('.clover');
+        clovers.forEach((clover, index) => {
+          clover.classList.remove('filled');
+          if (index < randomMsgObj.rating) {
+            clover.classList.add('filled');
+          }
+        });
+      }
+      
+
+      
+      
+      const msgDisplay = document.getElementById('messageDisplay');
+      if (msgDisplay) {
+        msgDisplay.style.opacity = '0';
+        msgDisplay.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+          msgDisplay.innerText = randomMsgObj.text;
+          msgDisplay.style.opacity = '1';
+          msgDisplay.style.transform = 'translateY(0)';
+        }, 100);
+      }
+      
+      
+      setTimeout(() => {
+        windowInner.classList.remove('is-thinking');
+        windowInner.classList.add('is-revealed');
+        isProcessing = false;
+      }, 200);
+      
+    }, 1500); 
+  }
+
+  
+  idleMark.style.display = 'flex';
+
+  
+  let titleClickCount = 0;
+  let titleClickTimer;
+  let isSquareMode = false;
+  
+  document.querySelector('.title').addEventListener('click', () => {
+    titleClickCount++;
+    clearTimeout(titleClickTimer);
+    titleClickTimer = setTimeout(() => {
+      titleClickCount = 0;
+    }, 1000);
+    
+    if (titleClickCount === 5) {
+      const msgDisplay = document.getElementById('messageDisplay');
+      
+      if (!isSquareMode) {
+        
+        isSquareMode = true;
+        sphere.style.borderRadius = '4px';
+        sphere.style.width = '280px';
+        sphere.style.height = '280px';
+        sphere.style.left = '30px';
+        sphere.style.top = '30px';
+        
+        document.querySelector('.window-outer').style.borderRadius = '2px';
+        document.querySelector('.window-inner').style.borderRadius = '0px';
+        
+        // 모든 UI를 네모로 변경
+        document.querySelector('.theme-toggle').style.borderRadius = '4px';
+        document.querySelector('.pull-mechanism').style.borderRadius = '8px';
+        document.querySelector('.pull-handle').style.borderRadius = '4px';
+        document.querySelector('.title').style.fontFamily = "'Courier New', 'Monaco', monospace";
+        document.querySelector('.subtitle').style.fontFamily = "'Courier New', 'Monaco', monospace";
+        document.querySelector('.answer-text').style.fontFamily = "'Courier New', 'Monaco', monospace";
+        document.querySelector('.instructions span').style.fontFamily = "'Courier New', 'Monaco', monospace";
+        document.querySelector('.reset-hint').style.fontFamily = "'Courier New', 'Monaco', monospace";
+        
+        // 모든 텍스트 굵게 네모스럽게
+        document.querySelectorAll('.slot-item').forEach(item => {
+          item.style.fontFamily = "'Courier New', 'Monaco', monospace";
+          item.style.fontWeight = "900";
+        });
+        
+        if (msgDisplay) {
+          msgDisplay.innerText = 'CUBE MODE';
+          msgDisplay.style.opacity = '1';
+          msgDisplay.style.fontFamily = "'Courier New', 'Monaco', monospace";
+        }
+      } else {
+        
+        isSquareMode = false;
+        sphere.style.borderRadius = '50%';
+        sphere.style.width = '100%';
+        sphere.style.height = '100%';
+        sphere.style.left = '';
+        sphere.style.top = '';
+        sphere.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+        
+        document.querySelector('.window-outer').style.borderRadius = '50%';
+        document.querySelector('.window-inner').style.borderRadius = '50%';
+        
+        // 원래 UI로 복원
+        document.querySelector('.theme-toggle').style.borderRadius = '50%';
+        document.querySelector('.pull-mechanism').style.borderRadius = '32px';
+        document.querySelector('.pull-handle').style.borderRadius = '50%';
+        document.querySelector('.title').style.fontFamily = "";
+        document.querySelector('.subtitle').style.fontFamily = "";
+        document.querySelector('.answer-text').style.fontFamily = "";
+        document.querySelector('.instructions span').style.fontFamily = "";
+        document.querySelector('.reset-hint').style.fontFamily = "";
+        
+        document.querySelectorAll('.slot-item').forEach(item => {
+          item.style.fontFamily = "";
+        });
+        
+        if (msgDisplay) {
+          msgDisplay.innerText = 'SPHERE MODE';
+          msgDisplay.style.opacity = '1';
+          msgDisplay.style.fontFamily = "";
+        }
+      }
+      
+      titleClickCount = 0;
+      
+      
+      setTimeout(() => {
+        if (msgDisplay && !isRevealed) msgDisplay.style.opacity = '0';
+      }, 2000);
+    }
+  });
+  
+  
+
+  
+  
+
+</script>
+
+
+</body></html>
